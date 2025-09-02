@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Noun Learning Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            background: linear-gradient(135deg, #ff9a9e, #fecfef, #fecfef, #fad0c4);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #2c3e50;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .game-selector {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .game-btn {
+            padding: 12px 24px;
+            font-size: 1.1em;
+            font-weight: bold;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .game-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+        }
+
+        .game-btn.active {
+            background: #3498db;
+            color: white;
+        }
+
+        .game-btn:not(.active) {
+            background: white;
+            color: #3498db;
+        }
+
+        .game-container {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            min-width: 320px;
+            max-width: 900px;
+            width: 100%;
+        }
+
+        .score-board {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 15px;
+        }
+
+        .score {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        /* Noun Sorting Game */
+        .sorting-game {
+            text-align: center;
+        }
+
+        .items-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+            padding: 20px;
+            background: #ecf0f1;
+            border-radius: 15px;
+        }
+
+        .sortable-item {
+            width: 120px;
+            height: 120px;
+            background: white;
+            border-radius: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: grab;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            user-select: none;
+        }
+
+        .sortable-item:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+        }
+
+        .sortable-item.dragging {
+            opacity: 0.5;
+            transform: rotate(5deg);
+        }
+
+        .item-emoji {
+            font-size: 3em;
+            margin-bottom: 5px;
+        }
+
+        .item-text {
+            font-size: 0.9em;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .baskets-container {
+            display: flex;
+            gap: 30px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+
+        .basket {
+            width: 200px;
+            height: 150px;
+            border: 3px dashed #bdc3c7;
+            border-radius: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+
+        .basket.noun {
+            border-color: #27ae60;
+        }
+
+        .basket.not-noun {
+            border-color: #e74c3c;
+        }
+
+        .basket.drag-over {
+            background: #d5e8d4;
+            transform: scale(1.05);
+        }
+
+        .basket h3 {
+            font-size: 1.3em;
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+
+        /* Image Match Game */
+        .match-game {
+            text-align: center;
+        }
+
+        .match-container {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            margin: 30px 0;
+            flex-wrap: wrap;
+            gap: 30px;
+        }
+
+        .word-card {
+            background: #3498db;
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            font-size: 1.5em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 120px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        .word-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+        }
+
+        .word-card.selected {
+            background: #f39c12;
+        }
+
+        .image-card {
+            font-size: 4em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            padding: 15px;
+            border-radius: 15px;
+            background: white;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .image-card:hover {
+            transform: scale(1.1);
+        }
+
+        .image-card.matched {
+            background: #2ecc71;
+        }
+
+        .match-feedback {
+            margin-top: 20px;
+            font-size: 1.3em;
+            font-weight: bold;
+            min-height: 40px;
+        }
+
+        .match-feedback.correct {
+            color: #27ae60;
+        }
+
+        .match-feedback.incorrect {
+            color: #e74c3c;
+        }
+
+        /* Noun Hunt Game */
+        .hunt-game {
+            text-align: center;
+        }
+
+        .sentence-container {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 15px;
+            margin: 20px 0;
+            font-size: 1.4em;
+            line-height: 1.6;
+        }
+
+        .word {
+            display: inline-block;
+            padding: 5px 8px;
+            margin: 2px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            user-select: none;
+        }
+
+        .word:hover {
+            background: #ecf0f1;
+            transform: scale(1.05);
+        }
+
+        .word.noun-highlighted {
+            background: #2ecc71;
+            color: white;
+        }
+
+        .word.incorrect {
+            background: #e74c3c;
+            color: white;
+            animation: shake 0.5s ease-in-out;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .hunt-instructions {
+            color: #2c3e50;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: #ecf0f1;
+            border-radius: 5px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #27ae60;
+            transition: width 0.3s ease;
+            border-radius: 5px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @media (max-width: 600px) {
+            .sortable-item {
+                width: 100px;
+                height: 100px;
+            }
+            
+            .baskets-container {
+                flex-direction: column;
+                align-items: center;
+                gap: 20px;
+            }
+            
+            .basket {
+                width: 250px;
+            }
+            
+            .match-container {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Noun Learning Game</h1>
+    </div>
+
+    <div class="game-selector">
+        <button class="game-btn active" onclick="switchGame('sort')">Noun Sorting</button>
+        <button class="game-btn" onclick="switchGame('match')">Image Match</button>
+        <button class="game-btn" onclick="switchGame('hunt')">Noun Hunt</button>
+    </div>
+
+    <div class="game-container">
+        <div class="score-board">
+            <div class="score">Score: <span id="score">0</span></div>
+            <div class="score">Streak: <span id="streak">0</span> 🔥</div>
+        </div>
+
+        <!-- Noun Sorting Game -->
+        <div id="sort-game" class="game">
+            <div class="sorting-game">
+                <h3 style="color: #2c3e50; margin-bottom: 20px;">Drag the NOUNS into the correct basket!</h3>
+                <p style="color: #7f8c8d; margin-bottom: 20px;">Nouns are names of people, places, or things</p>
+                
+                <div class="items-container" id="items-container">
+                    <!-- Items will be dynamically added here -->
+                </div>
+
+                <div class="baskets-container">
+                    <div class="basket noun" ondrop="drop(event, 'noun')" ondragover="allowDrop(event)">
+                        <h3>📦 Nouns</h3>
+                        <p style="color: #27ae60; font-weight: bold;">People, Places, Things</p>
+                    </div>
+                    <div class="basket not-noun" ondrop="drop(event, 'not-noun')" ondragover="allowDrop(event)">
+                        <h3>❌ Not Nouns</h3>
+                        <p style="color: #e74c3c; font-weight: bold;">Actions, Feelings, Describing Words</p>
+                    </div>
+                </div>
+
+                <button onclick="nextSortRound()" style="margin-top: 20px; padding: 12px 24px; background: #3498db; color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 1.1em; font-weight: bold;">New Round</button>
+            </div>
+        </div>
+
+        <!-- Image Match Game -->
+        <div id="match-game" class="game hidden">
+            <div class="match-game">
+                <h3 style="color: #2c3e50; margin-bottom: 20px;">Match the word with the picture!</h3>
+                
+                <div class="match-container">
+                    <div id="word-options">
+                        <!-- Word cards will be added here -->
+                    </div>
+                    <div style="font-size: 2em; color: #7f8c8d;">↔️</div>
+                    <div id="image-options">
+                        <!-- Image cards will be added here -->
+                    </div>
+                </div>
+
+                <div class="match-feedback" id="match-feedback"></div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="match-progress" style="width: 0%;"></div>
+                </div>
+
+                <button onclick="nextMatchRound()" style="margin-top: 20px; padding: 12px 24px; background: #3498db; color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 1.1em; font-weight: bold;">Next Round</button>
+            </div>
+        </div>
+
+        <!-- Noun Hunt Game -->
+        <div id="hunt-game" class="game hidden">
+            <div class="hunt-game">
+                <h3 style="color: #2c3e50; margin-bottom: 20px;">Find and click all the NOUNS in the sentence!</h3>
+                <div class="hunt-instructions">Click on words that are people, places, or things</div>
+                
+                <div class="sentence-container" id="sentence-display">
+                    <!-- Sentence will be displayed here -->
+                </div>
+
+                <div style="margin: 20px 0;">
+                    <span style="color: #2c3e50; font-weight: bold;">Found: </span>
+                    <span id="found-nouns" style="color: #27ae60; font-weight: bold;">0</span>
+                    <span style="color: #2c3e50;"> / </span>
+                    <span id="total-nouns" style="color: #3498db; font-weight: bold;">0</span>
+                    <span style="color: #2c3e50;"> nouns</span>
+                </div>
+
+                <div class="progress-bar">
+                    <div class="progress-fill" id="hunt-progress" style="width: 0%;"></div>
+                </div>
+
+                <button onclick="nextHuntSentence()" style="margin-top: 20px; padding: 12px 24px; background: #3498db; color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 1.1em; font-weight: bold;">Next Sentence</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentGame = 'sort';
+        let score = 0;
+        let streak = 0;
+        let selectedWord = null;
+        let currentMatchPairs = [];
+        let matchedCount = 0;
+        let currentSentence = 0;
+        let foundNouns = 0;
+
+        // Game data
+        const sortingItems = [
+            // Nouns
+            { emoji: '🍎', text: 'apple', type: 'noun' },
+            { emoji: '🪑', text: 'chair', type: 'noun' },
+            { emoji: '🐕', text: 'dog', type: 'noun' },
+            { emoji: '🏠', text: 'house', type: 'noun' },
+            { emoji: '📚', text: 'book', type: 'noun' },
+            { emoji: '🚗', text: 'car', type: 'noun' },
+            { emoji: '🌳', text: 'tree', type: 'noun' },
+            { emoji: '☀️', text: 'sun', type: 'noun' },
+            { emoji: '👧', text: 'girl', type: 'noun' },
+            { emoji: '🎾', text: 'ball', type: 'noun' },
+            
+            // Not nouns
+            { emoji: '🏃', text: 'running', type: 'not-noun' },
+            { emoji: '😊', text: 'happy', type: 'not-noun' },
+            { emoji: '💤', text: 'sleeping', type: 'not-noun' },
+            { emoji: '🔴', text: 'red', type: 'not-noun' },
+            { emoji: '⭐', text: 'beautiful', type: 'not-noun' },
+            { emoji: '⚡', text: 'quickly', type: 'not-noun' },
+            { emoji: '❤️', text: 'love', type: 'not-noun' },
+            { emoji: '🎵', text: 'singing', type: 'not-noun' }
+        ];
+
+        const matchPairs = [
+            { word: 'dog', emoji: '🐕' },
+            { word: 'car', emoji: '🚗' },
+            { word: 'apple', emoji: '🍎' },
+            { word: 'house', emoji: '🏠' },
+            { word: 'cat', emoji: '🐱' },
+            { word: 'tree', emoji: '🌳' },
+            { word: 'book', emoji: '📚' },
+            { word: 'sun', emoji: '☀️' },
+            { word: 'flower', emoji: '🌸' },
+            { word: 'ball', emoji: '⚽' }
+        ];
+
+        const sentences = [
+            { 
+                text: "The cat sat on the mat.",
+                words: ["The", "cat", "sat", "on", "the", "mat"],
+                nouns: ["cat", "mat"]
+            },
+            { 
+                text: "My dog loves to play in the park.",
+                words: ["My", "dog", "loves", "to", "play", "in", "the", "park"],
+                nouns: ["dog", "park"]
+            },
+            { 
+                text: "The teacher read a book to the children.",
+                words: ["The", "teacher", "read", "a", "book", "to", "the", "children"],
+                nouns: ["teacher", "book", "children"]
+            },
+            { 
+                text: "Birds fly high in the sky.",
+                words: ["Birds", "fly", "high", "in", "the", "sky"],
+                nouns: ["Birds", "sky"]
+            },
+            { 
+                text: "The boy ate pizza for dinner.",
+                words: ["The", "boy", "ate", "pizza", "for", "dinner"],
+                nouns: ["boy", "pizza", "dinner"]
+            }
+        ];
+
+        function switchGame(gameType) {
+            // Update active button
+            document.querySelectorAll('.game-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // Hide all games
+            document.querySelectorAll('.game').forEach(game => game.classList.add('hidden'));
+
+            // Show selected game
+            currentGame = gameType;
+            document.getElementById(gameType + '-game').classList.remove('hidden');
+
+            // Initialize game
+            switch(gameType) {
+                case 'sort':
+                    initSortGame();
+                    break;
+                case 'match':
+                    initMatchGame();
+                    break;
+                case 'hunt':
+                    initHuntGame();
+                    break;
+            }
+        }
+
+        function updateScore(points) {
+            score += points;
+            document.getElementById('score').textContent = score;
+        }
+
+        function updateStreak(correct) {
+            if (correct) {
+                streak++;
+            } else {
+                streak = 0;
+            }
+            document.getElementById('streak').textContent = streak;
+        }
+
+        // Sorting Game Functions
+        function initSortGame() {
+            setupSortingItems();
+        }
+
+        function setupSortingItems() {
+            const container = document.getElementById('items-container');
+            container.innerHTML = '';
+
+            // Select 6 random items (3 nouns, 3 not nouns)
+            const nouns = sortingItems.filter(item => item.type === 'noun');
+            const notNouns = sortingItems.filter(item => item.type === 'not-noun');
+
+            const selectedNouns = nouns.sort(() => Math.random() - 0.5).slice(0, 3);
+            const selectedNotNouns = notNouns.sort(() => Math.random() - 0.5).slice(0, 3);
+
+            const selectedItems = [...selectedNouns, ...selectedNotNouns].sort(() => Math.random() - 0.5);
+
+            selectedItems.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'sortable-item';
+                div.draggable = true;
+                div.dataset.type = item.type;
+                div.ondragstart = drag;
+                div.innerHTML = `
+                    <div class="item-emoji">${item.emoji}</div>
+                    <div class="item-text">${item.text}</div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function drag(event) {
+            event.target.classList.add('dragging');
+            event.dataTransfer.setData("text", event.target.dataset.type);
+            event.dataTransfer.setData("element", event.target.outerHTML);
+        }
+
+        function allowDrop(event) {
+            event.preventDefault();
+            event.target.closest('.basket').classList.add('drag-over');
+        }
+
+        function drop(event, basketType) {
+            event.preventDefault();
+            const basket = event.target.closest('.basket');
+            basket.classList.remove('drag-over');
+            
+            const itemType = event.dataTransfer.getData("text");
+            const elementHTML = event.dataTransfer.getData("element");
+
+            const isCorrect = itemType === basketType;
+
+            if (isCorrect) {
+                updateScore(10);
+                updateStreak(true);
+                basket.style.background = '#d5e8d4';
+                setTimeout(() => basket.style.background = '#f8f9fa', 500);
+
+                // Remove the dragged element
+                const draggedElement = document.querySelector('.dragging');
+                if (draggedElement) {
+                    draggedElement.style.animation = 'fadeOut 0.5s ease-out';
+                    setTimeout(() => draggedElement.remove(), 500);
+                }
+            } else {
+                updateStreak(false);
+                basket.style.background = '#f8d7da';
+                setTimeout(() => basket.style.background = '#f8f9fa', 500);
+
+                const draggedElement = document.querySelector('.dragging');
+                if (draggedElement) {
+                    draggedElement.classList.remove('dragging');
+                    draggedElement.style.animation = 'shake 0.5s ease-in-out';
+                }
+            }
+        }
+
+        function nextSortRound() {
+            setupSortingItems();
+        }
+
+        // Match Game Functions
+        function initMatchGame() {
+            setupMatchGame();
+        }
+
+        function setupMatchGame() {
+            selectedWord = null;
+            matchedCount = 0;
+
+            // Select 3 random pairs
+            currentMatchPairs = matchPairs.sort(() => Math.random() - 0.5).slice(0, 3);
+
+            const wordContainer = document.getElementById('word-options');
+            const imageContainer = document.getElementById('image-options');
+
+            wordContainer.innerHTML = '';
+            imageContainer.innerHTML = '';
+
+            // Create word cards
+            const shuffledWords = [...currentMatchPairs].sort(() => Math.random() - 0.5);
+            shuffledWords.forEach(pair => {
+                const wordCard = document.createElement('div');
+                wordCard.className = 'word-card';
+                wordCard.textContent = pair.word;
+                wordCard.onclick = () => selectWord(wordCard, pair.word);
+                wordContainer.appendChild(wordCard);
+            });
+
+            // Create image cards
+            const shuffledImages = [...currentMatchPairs].sort(() => Math.random() - 0.5);
+            shuffledImages.forEach(pair => {
+                const imageCard = document.createElement('div');
+                imageCard.className = 'image-card';
+                imageCard.textContent = pair.emoji;
+                imageCard.dataset.word = pair.word;
+                imageCard.onclick = () => selectImage(imageCard, pair.word);
+                imageContainer.appendChild(imageCard);
+            });
+
+            updateMatchProgress();
+            document.getElementById('match-feedback').textContent = '';
+        }
+
+        function selectWord(card, word) {
+            // Remove previous selection
+            document.querySelectorAll('.word-card').forEach(c => c.classList.remove('selected'));
+            
+            card.classList.add('selected');
+            selectedWord = word;
+        }
+
+        function selectImage(card, word) {
+            if (!selectedWord) {
+                document.getElementById('match-feedback').textContent = 'Select a word first!';
+                document.getElementById('match-feedback').className = 'match-feedback';
+                return;
+            }
+
+            const feedback = document.getElementById('match-feedback');
+
+            if (selectedWord === word) {
+                // Correct match
+                card.classList.add('matched');
+                const selectedWordCard = document.querySelector('.word-card.selected');
+                selectedWordCard.style.background = '#2ecc71';
+                selectedWordCard.style.pointerEvents = 'none';
+                card.style.pointerEvents = 'none';
+
+                feedback.textContent = `Correct! ${selectedWord} matches ${card.textContent}`;
+                feedback.className = 'match-feedback correct';
+
+                updateScore(15);
+                updateStreak(true);
+                matchedCount++;
+
+                if (matchedCount === currentMatchPairs.length) {
+                    setTimeout(() => {
+                        feedback.textContent = 'Great job! You matched all pairs! 🎉';
+                        setTimeout(() => setupMatchGame(), 2000);
+                    }, 1000);
+                }
+            } else {
+                // Incorrect match
+                feedback.textContent = `Not quite! Try again.`;
+                feedback.className = 'match-feedback incorrect';
+                updateStreak(false);
+
+                card.style.animation = 'shake 0.5s ease-in-out';
+                setTimeout(() => card.style.animation = '', 500);
+            }
+
+            updateMatchProgress();
+            selectedWord = null;
+            document.querySelectorAll('.word-card').forEach(c => c.classList.remove('selected'));
+        }
+
+        function updateMatchProgress() {
+            const progress = (matchedCount / currentMatchPairs.length) * 100;
+            document.getElementById('match-progress').style.width = progress + '%';
+        }
+
+        function nextMatchRound() {
+            setupMatchGame();
+        }
+
+        // Hunt Game Functions
+        function initHuntGame() {
+            setupHuntGame();
+        }
+
+        function setupHuntGame() {
+            foundNouns = 0;
+            const sentence = sentences[currentSentence % sentences.length];
+
+            document.getElementById('sentence-display').innerHTML = '';
+            document.getElementById('found-nouns').textContent = foundNouns;
+            document.getElementById('total-nouns').textContent = sentence.nouns.length;
+
+            sentence.words.forEach(word => {
+                const span = document.createElement('span');
+                span.className = 'word';
+                span.textContent = word;
+                span.dataset.word = word.toLowerCase();
+                span.onclick = () => clickWord(span, word.toLowerCase(), sentence.nouns);
+                document.getElementById('sentence-display').appendChild(span);
+
+                // Add space after each word
+                document.getElementById('sentence-display').appendChild(document.createTextNode(' '));
+            });
+
+            updateHuntProgress(sentence.nouns.length);
+        }
+
+        function clickWord(element, word, nouns) {
+            if (element.classList.contains('noun-highlighted') || element.classList.contains('incorrect')) {
+                return;
+            }
+
+            const isNoun = nouns.map(n => n.toLowerCase()).includes(word);
+
+            if (isNoun) {
+                element.classList.add('noun-highlighted');
+                foundNouns++;
+                updateScore(8);
+                updateStreak(true);
+
+                document.getElementById('found-nouns').textContent = foundNouns;
+
+                if (foundNouns === nouns.length) {
+                    setTimeout(() => {
+                        alert('Excellent! You found all the nouns! 🎉');
+                        nextHuntSentence();
+                    }, 500);
+                }
+            } else {
+                element.classList.add('incorrect');
+                updateStreak(false);
+                setTimeout(() => element.classList.remove('incorrect'), 1000);
+            }
+
+            updateHuntProgress(nouns.length);
+        }
+
+        function updateHuntProgress(totalNouns) {
+            const progress = (foundNouns / totalNouns) * 100;
+            document.getElementById('hunt-progress').style.width = progress + '%';
+        }
+
+        function nextHuntSentence() {
+            currentSentence++;
+            setupHuntGame();
+        }
+
+        // Add CSS for fade out animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes fadeOut {
+                from { opacity: 1; transform: scale(1); }
+                to { opacity: 0; transform: scale(0.8); }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Initialize the game
+        initSortGame();
+    </script>
+</body>
+</html>

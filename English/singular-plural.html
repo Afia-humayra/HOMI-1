@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Singular & Plural Learning Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            background: linear-gradient(135deg, #667eea, #764ba2, #f093fb, #f5576c);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .game-selector {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .game-btn {
+            padding: 12px 24px;
+            font-size: 1.1em;
+            font-weight: bold;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        .game-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+        }
+
+        .game-btn.active {
+            background: #ff6b6b;
+            color: white;
+        }
+
+        .game-btn:not(.active) {
+            background: white;
+            color: #ff6b6b;
+        }
+
+        .game-container {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+            min-width: 320px;
+            max-width: 900px;
+            width: 100%;
+        }
+
+        .score-board {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 15px;
+        }
+
+        .score {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        /* Drag & Drop Game */
+        .drag-drop-game {
+            text-align: center;
+        }
+
+        .objects-container {
+            display: flex;
+            justify-content: space-around;
+            margin: 30px 0;
+            flex-wrap: wrap;
+            gap: 30px;
+        }
+
+        .object-group {
+            background: #f8f9fa;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            min-width: 200px;
+        }
+
+        .object-display {
+            font-size: 3em;
+            margin-bottom: 15px;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .drop-zone {
+            min-height: 60px;
+            border: 3px dashed #bdc3c7;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #7f8c8d;
+            margin-top: 10px;
+        }
+
+        .drop-zone.drag-over {
+            border-color: #3498db;
+            background: #e8f4fd;
+            transform: scale(1.02);
+        }
+
+        .drop-zone.correct {
+            border-color: #27ae60;
+            background: #d5e8d4;
+            color: #27ae60;
+        }
+
+        .drop-zone.incorrect {
+            border-color: #e74c3c;
+            background: #f8d7da;
+            color: #e74c3c;
+        }
+
+        .word-options {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 30px 0;
+        }
+
+        .draggable-word {
+            background: #3498db;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 15px;
+            cursor: grab;
+            font-size: 1.1em;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            user-select: none;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        .draggable-word:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+        }
+
+        .draggable-word.dragging {
+            opacity: 0.5;
+            transform: rotate(5deg);
+        }
+
+        /* Fix the Word Game */
+        .fix-word-game {
+            text-align: center;
+        }
+
+        .sentence-container {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 15px;
+            margin: 20px 0;
+            font-size: 1.5em;
+            line-height: 1.8;
+            color: #2c3e50;
+        }
+
+        .blank-space {
+            display: inline-block;
+            min-width: 120px;
+            padding: 8px 15px;
+            margin: 0 5px;
+            border: 2px solid #3498db;
+            border-radius: 10px;
+            background: white;
+            font-weight: bold;
+            color: #3498db;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .blank-space:hover {
+            background: #e8f4fd;
+        }
+
+        .blank-space.filled {
+            background: #27ae60;
+            color: white;
+            border-color: #27ae60;
+        }
+
+        .blank-space.incorrect {
+            background: #e74c3c;
+            color: white;
+            border-color: #e74c3c;
+            animation: shake 0.5s ease-in-out;
+        }
+
+        .word-choices {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 25px 0;
+        }
+
+        .choice-btn {
+            padding: 12px 20px;
+            background: #9b59b6;
+            color: white;
+            border: none;
+            border-radius: 15px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        .choice-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+        }
+
+        .choice-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Flip Cards Game */
+        .flip-cards-game {
+            text-align: center;
+        }
+
+        .cards-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .flip-card {
+            background: transparent;
+            width: 200px;
+            height: 140px;
+            perspective: 1000px;
+            margin: 0 auto;
+        }
+
+        .flip-card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.8s;
+            transform-style: preserve-3d;
+            cursor: pointer;
+        }
+
+        .flip-card:hover .flip-card-inner {
+            transform: rotateY(5deg);
+        }
+
+        .flip-card.flipped .flip-card-inner {
+            transform: rotateY(180deg);
+        }
+
+        .flip-card-front, .flip-card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
+            font-weight: bold;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        .flip-card-front {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .flip-card-back {
+            background: #27ae60;
+            color: white;
+            transform: rotateY(180deg);
+        }
+
+        .flip-instructions {
+            color: #7f8c8d;
+            font-size: 1.1em;
+            margin-bottom: 20px;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .feedback {
+            margin-top: 20px;
+            font-size: 1.3em;
+            font-weight: bold;
+            min-height: 40px;
+        }
+
+        .feedback.correct {
+            color: #27ae60;
+        }
+
+        .feedback.incorrect {
+            color: #e74c3c;
+        }
+
+        @media (max-width: 600px) {
+            .objects-container {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .object-group {
+                min-width: 280px;
+            }
+            
+            .flip-card {
+                width: 180px;
+                height: 120px;
+            }
+            
+            .cards-container {
+                grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Singular & Plural Game</h1>
+    </div>
+
+    <div class="game-selector">
+        <button class="game-btn active" onclick="switchGame('drag')">Drag & Drop</button>
+        <button class="game-btn" onclick="switchGame('fix')">Fix the Word</button>
+        <button class="game-btn" onclick="switchGame('flip')">Flip Cards</button>
+    </div>
+
+    <div class="game-container">
+        <div class="score-board">
+            <div class="score">Score: <span id="score">0</span></div>
+            <div class="score">Level: <span id="level">1</span></div>
+        </div>
+
+        <!-- Drag & Drop Game -->
+        <div id="drag-game" class="game">
+            <div class="drag-drop-game">
+                <h3 style="color: #2c3e50; margin-bottom: 20px;">Drag the correct word under each picture!</h3>
+                
+                <div class="objects-container" id="objects-display">
+                    <!-- Object groups will be added here -->
+                </div>
+
+                <div class="word-options" id="word-options">
+                    <!-- Draggable words will be added here -->
+                </div>
+
+                <div class="feedback" id="drag-feedback"></div>
+
+                <button onclick="nextDragRound()" style="margin-top: 20px; padding: 12px 24px; background: #ff6b6b; color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 1.1em; font-weight: bold;">Next Round</button>
+            </div>
+        </div>
+
+        <!-- Fix the Word Game -->
+        <div id="fix-game" class="game hidden">
+            <div class="fix-word-game">
+                <h3 style="color: #2c3e50; margin-bottom: 20px;">Complete the sentence with the correct word!</h3>
+                
+                <div class="sentence-container" id="sentence-display">
+                    <!-- Sentence will be displayed here -->
+                </div>
+
+                <div class="word-choices" id="word-choices">
+                    <!-- Choice buttons will be added here -->
+                </div>
+
+                <div class="feedback" id="fix-feedback"></div>
+
+                <button onclick="nextFixSentence()" style="margin-top: 20px; padding: 12px 24px; background: #ff6b6b; color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 1.1em; font-weight: bold;">Next Sentence</button>
+            </div>
+        </div>
+
+        <!-- Flip Cards Game -->
+        <div id="flip-game" class="game hidden">
+            <div class="flip-cards-game">
+                <h3 style="color: #2c3e50; margin-bottom: 20px;">Click cards to see singular and plural forms!</h3>
+                <div class="flip-instructions">Click each card to flip it and learn the plural form!</div>
+                
+                <div class="cards-container" id="cards-container">
+                    <!-- Flip cards will be added here -->
+                </div>
+
+                <button onclick="nextCardSet()" style="margin-top: 20px; padding: 12px 24px; background: #ff6b6b; color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 1.1em; font-weight: bold;">New Cards</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentGame = 'drag';
+        let score = 0;
+        let level = 1;
+        let currentDragRound = 0;
+        let currentFixSentence = 0;
+        let currentCardSet = 0;
+
+        // Game data
+        const dragDropItems = [
+            { emoji: '🍎', singular: 'apple', plural: 'apples' },
+            { emoji: '🐕', singular: 'dog', plural: 'dogs' },
+            { emoji: '📕', singular: 'book', plural: 'books' },
+            { emoji: '🚗', singular: 'car', plural: 'cars' },
+            { emoji: '🌸', singular: 'flower', plural: 'flowers' },
+            { emoji: '🎈', singular: 'balloon', plural: 'balloons' },
+            { emoji: '⭐', singular: 'star', plural: 'stars' },
+            { emoji: '🍪', singular: 'cookie', plural: 'cookies' }
+        ];
+
+        const fixSentences = [
+            { text: "There are two ___", word: "dog", correct: "dogs", choices: ["dog", "dogs"] },
+            { text: "I see three ___", word: "cat", correct: "cats", choices: ["cat", "cats"] },
+            { text: "She has five ___", word: "book", correct: "books", choices: ["book", "books"] },
+            { text: "There are many ___", word: "bird", correct: "birds", choices: ["bird", "birds"] },
+            { text: "He bought four ___", word: "apple", correct: "apples", choices: ["apple", "apples"] },
+            { text: "I need one ___", word: "pencil", correct: "pencil", choices: ["pencil", "pencils"] },
+            { text: "We saw several ___", word: "flower", correct: "flowers", choices: ["flower", "flowers"] },
+            { text: "There is one ___", word: "house", correct: "house", choices: ["house", "houses"] }
+        ];
+
+        const flipCards = [
+            { singular: 'child', plural: 'children' },
+            { singular: 'foot', plural: 'feet' },
+            { singular: 'tooth', plural: 'teeth' },
+            { singular: 'mouse', plural: 'mice' },
+            { singular: 'goose', plural: 'geese' },
+            { singular: 'man', plural: 'men' },
+            { singular: 'woman', plural: 'women' },
+            { singular: 'sheep', plural: 'sheep' },
+            { singular: 'fish', plural: 'fish' },
+            { singular: 'deer', plural: 'deer' },
+            { singular: 'ox', plural: 'oxen' },
+            { singular: 'cactus', plural: 'cacti' },
+            { singular: 'person', plural: 'people' },
+            { singular: 'leaf', plural: 'leaves' },
+            { singular: 'knife', plural: 'knives' },
+            { singular: 'wife', plural: 'wives' }
+        ];
+
+        function switchGame(gameType) {
+            // Update active button
+            document.querySelectorAll('.game-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // Hide all games
+            document.querySelectorAll('.game').forEach(game => game.classList.add('hidden'));
+
+            // Show selected game
+            currentGame = gameType;
+            document.getElementById(gameType + '-game').classList.remove('hidden');
+
+            // Initialize game
+            switch(gameType) {
+                case 'drag':
+                    initDragDropGame();
+                    break;
+                case 'fix':
+                    initFixWordGame();
+                    break;
+                case 'flip':
+                    initFlipCardsGame();
+                    break;
+            }
+        }
+
+        function updateScore(points) {
+            score += points;
+            document.getElementById('score').textContent = score;
+            
+            // Level up every 100 points
+            const newLevel = Math.floor(score / 100) + 1;
+            if (newLevel > level) {
+                level = newLevel;
+                document.getElementById('level').textContent = level;
+            }
+        }
+
+        // Drag & Drop Game Functions
+        function initDragDropGame() {
+            setupDragDropRound();
+        }
+
+        function setupDragDropRound() {
+            const objectsContainer = document.getElementById('objects-display');
+            const wordsContainer = document.getElementById('word-options');
+            
+            objectsContainer.innerHTML = '';
+            wordsContainer.innerHTML = '';
+
+            // Select 2 items for this round
+            const selectedItems = dragDropItems.slice(currentDragRound * 2, currentDragRound * 2 + 2);
+            if (selectedItems.length === 0) {
+                currentDragRound = 0;
+                setupDragDropRound();
+                return;
+            }
+
+            // Create object groups (one singular, one plural)
+            selectedItems.forEach((item, index) => {
+                const group = document.createElement('div');
+                group.className = 'object-group';
+
+                const isPlural = index === 1;
+                const display = document.createElement('div');
+                display.className = 'object-display';
+                
+                if (isPlural) {
+                    // Show multiple objects
+                    display.innerHTML = `${item.emoji}${item.emoji}${item.emoji}`;
+                } else {
+                    // Show single object
+                    display.innerHTML = item.emoji;
+                }
+
+                const dropZone = document.createElement('div');
+                dropZone.className = 'drop-zone';
+                dropZone.textContent = 'Drop word here';
+                dropZone.dataset.correct = isPlural ? item.plural : item.singular;
+                dropZone.ondrop = drop;
+                dropZone.ondragover = allowDrop;
+
+                group.appendChild(display);
+                group.appendChild(dropZone);
+                objectsContainer.appendChild(group);
+            });
+
+            // Create word options
+            const allWords = [];
+            selectedItems.forEach(item => {
+                allWords.push(item.singular, item.plural);
+            });
+
+            allWords.sort(() => Math.random() - 0.5);
+
+            allWords.forEach(word => {
+                const wordDiv = document.createElement('div');
+                wordDiv.className = 'draggable-word';
+                wordDiv.textContent = word;
+                wordDiv.draggable = true;
+                wordDiv.ondragstart = drag;
+                wordsContainer.appendChild(wordDiv);
+            });
+
+            document.getElementById('drag-feedback').textContent = '';
+        }
+
+        function drag(event) {
+            event.target.classList.add('dragging');
+            event.dataTransfer.setData("text", event.target.textContent);
+        }
+
+        function allowDrop(event) {
+            event.preventDefault();
+            event.target.classList.add('drag-over');
+        }
+
+        function drop(event) {
+            event.preventDefault();
+            const dropZone = event.target;
+            dropZone.classList.remove('drag-over');
+
+            const draggedWord = event.dataTransfer.getData("text");
+            const correctWord = dropZone.dataset.correct;
+
+            if (draggedWord === correctWord) {
+                dropZone.textContent = draggedWord;
+                dropZone.classList.add('correct');
+                dropZone.ondrop = null;
+                dropZone.ondragover = null;
+
+                // Remove the dragged word
+                const draggedElement = document.querySelector('.dragging');
+                if (draggedElement) {
+                    draggedElement.remove();
+                }
+
+                updateScore(15);
+                
+                // Check if round is complete
+                const remainingDropZones = document.querySelectorAll('.drop-zone:not(.correct)');
+                if (remainingDropZones.length === 0) {
+                    document.getElementById('drag-feedback').textContent = 'Excellent! All words matched correctly! 🎉';
+                    document.getElementById('drag-feedback').className = 'feedback correct';
+                }
+            } else {
+                dropZone.classList.add('incorrect');
+                setTimeout(() => dropZone.classList.remove('incorrect'), 1000);
+
+                const draggedElement = document.querySelector('.dragging');
+                if (draggedElement) {
+                    draggedElement.classList.remove('dragging');
+                    draggedElement.style.animation = 'shake 0.5s ease-in-out';
+                    setTimeout(() => draggedElement.style.animation = '', 500);
+                }
+            }
+        }
+
+        function nextDragRound() {
+            currentDragRound++;
+            setupDragDropRound();
+        }
+
+        // Fix the Word Game Functions
+        function initFixWordGame() {
+            setupFixSentence();
+        }
+
+        function setupFixSentence() {
+            const sentence = fixSentences[currentFixSentence % fixSentences.length];
+            
+            const sentenceDisplay = document.getElementById('sentence-display');
+            sentenceDisplay.innerHTML = '';
+
+            // Create sentence with blank
+            const parts = sentence.text.split('___');
+            const span1 = document.createElement('span');
+            span1.textContent = parts[0];
+            sentenceDisplay.appendChild(span1);
+
+            const blank = document.createElement('span');
+            blank.className = 'blank-space';
+            blank.textContent = '___';
+            blank.dataset.correct = sentence.correct;
+            sentenceDisplay.appendChild(blank);
+
+            if (parts[1]) {
+                const span2 = document.createElement('span');
+                span2.textContent = parts[1];
+                sentenceDisplay.appendChild(span2);
+            }
+
+            // Show hint
+            const hint = document.createElement('div');
+            hint.style.marginTop = '15px';
+            hint.style.color = '#7f8c8d';
+            hint.style.fontSize = '1.1em';
+            hint.textContent = `(${sentence.word})`;
+            sentenceDisplay.appendChild(hint);
+
+            // Create choice buttons
+            const choicesContainer = document.getElementById('word-choices');
+            choicesContainer.innerHTML = '';
+
+            sentence.choices.forEach(choice => {
+                const button = document.createElement('button');
+                button.className = 'choice-btn';
+                button.textContent = choice;
+                button.onclick = () => selectWord(choice, sentence.correct, blank);
+                choicesContainer.appendChild(button);
+            });
+
+            document.getElementById('fix-feedback').textContent = '';
+        }
+
+        function selectWord(selected, correct, blankElement) {
+            const feedback = document.getElementById('fix-feedback');
+            const buttons = document.querySelectorAll('.choice-btn');
+
+            buttons.forEach(btn => btn.disabled = true);
+
+            if (selected === correct) {
+                blankElement.textContent = selected;
+                blankElement.classList.add('filled');
+                feedback.textContent = 'Perfect! That\'s the correct form! 🎉';
+                feedback.className = 'feedback correct';
+                updateScore(12);
+
+                setTimeout(() => {
+                    currentFixSentence++;
+                    setupFixSentence();
+                }, 2000);
+            } else {
+                blankElement.classList.add('incorrect');
+                feedback.textContent = `Not quite! The correct answer is "${correct}".`;
+                feedback.className = 'feedback incorrect';
+
+                setTimeout(() => {
+                    blankElement.classList.remove('incorrect');
+                    buttons.forEach(btn => btn.disabled = false);
+                }, 1500);
+            }
+        }
+
+        function nextFixSentence() {
+            currentFixSentence++;
+            setupFixSentence();
+        }
+
+        // Flip Cards Game Functions
+        function initFlipCardsGame() {
+            setupCardSet();
+        }
+
+        function setupCardSet() {
+            const container = document.getElementById('cards-container');
+            container.innerHTML = '';
+
+            // Select 6 cards for this set
+            const selectedCards = flipCards.slice(currentCardSet * 6, currentCardSet * 6 + 6);
+            if (selectedCards.length === 0) {
+                currentCardSet = 0;
+                setupCardSet();
+                return;
+            }
+
+            selectedCards.forEach(card => {
+                const flipCardDiv = document.createElement('div');
+                flipCardDiv.className = 'flip-card';
+                flipCardDiv.onclick = () => flipCard(flipCardDiv);
+
+                flipCardDiv.innerHTML = `
+                    <div class="flip-card-inner">
+                        <div class="flip-card-front">
+                            <div>${card.singular}</div>
+                        </div>
+                        <div class="flip-card-back">
+                            <div>${card.plural}</div>
+                        </div>
+                    </div>
+                `;
+
+                container.appendChild(flipCardDiv);
+            });
+        }
+
+        function flipCard(cardElement) {
+            cardElement.classList.toggle('flipped');
+            
+            if (cardElement.classList.contains('flipped')) {
+                updateScore(5);
+            }
+        }
+
+        function nextCardSet() {
+            currentCardSet++;
+            setupCardSet();
+        }
+
+        // Initialize the game
+        initDragDropGame();
+    </script>
+</body>
+</html>

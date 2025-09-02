@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vowel Learning Games</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 50%, #fecfef 100%);
+            min-height: 100vh;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #ff6b9d;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 10px;
+        }
+
+        .game-selector {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .game-btn {
+            padding: 15px 25px;
+            font-size: 1.2em;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .game-btn.active {
+            background: linear-gradient(45deg, #ff6b9d, #c44569);
+            color: white;
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(255, 107, 157, 0.4);
+        }
+
+        .game-btn:not(.active) {
+            background: #f8f9fa;
+            color: #666;
+            border: 2px solid #ddd;
+        }
+
+        .game-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .game-area {
+            min-height: 400px;
+            position: relative;
+        }
+
+        .game {
+            display: none;
+        }
+
+        .game.active {
+            display: block;
+        }
+
+        /* Letter Catch Game */
+        .balloon-container {
+            position: relative;
+            height: 400px;
+            overflow: hidden;
+            background: linear-gradient(to bottom, #87ceeb 0%, #98fb98 100%);
+            border-radius: 15px;
+            border: 3px solid #ff6b9d;
+        }
+
+        .balloon {
+            position: absolute;
+            width: 60px;
+            height: 80px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            animation: float-up 4s linear forwards;
+        }
+
+        .balloon:hover {
+            transform: scale(1.1);
+        }
+
+        .balloon-body {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8em;
+            font-weight: bold;
+            color: white;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+            position: relative;
+        }
+
+        .balloon-string {
+            width: 2px;
+            height: 20px;
+            background: #333;
+            margin: 0 auto;
+        }
+
+        @keyframes float-up {
+            from {
+                bottom: -100px;
+            }
+            to {
+                bottom: 500px;
+            }
+        }
+
+        @keyframes pop {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.3); }
+            100% { transform: scale(0); opacity: 0; }
+        }
+
+        .balloon.popped {
+            animation: pop 0.3s ease-out forwards;
+        }
+
+        /* Fill the Blank Game */
+        .word-exercises {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 20px;
+        }
+
+        .word-card {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            border: 3px solid #ff6b9d;
+        }
+
+        .word-display {
+            font-size: 3em;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 20px;
+            letter-spacing: 5px;
+        }
+
+        .blank-space {
+            display: inline-block;
+            width: 50px;
+            height: 60px;
+            border: 3px dashed #ff6b9d;
+            border-radius: 10px;
+            margin: 0 5px;
+            position: relative;
+            vertical-align: middle;
+        }
+
+        .blank-space.filled {
+            background: linear-gradient(45deg, #ff6b9d, #c44569);
+            color: white;
+            border: 3px solid #ff6b9d;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+
+        .vowel-options {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .vowel-option {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(45deg, #4facfe, #00f2fe);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            font-size: 1.5em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .vowel-option:hover {
+            transform: scale(1.1) rotate(5deg);
+            box-shadow: 0 5px 15px rgba(79, 172, 254, 0.4);
+        }
+
+        .vowel-option.used {
+            opacity: 0.3;
+            cursor: not-allowed;
+            transform: scale(0.8);
+        }
+
+        /* Color Picker Game */
+        .alphabet-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
+            gap: 10px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .letter-tile {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(45deg, #f8f9fa, #e9ecef);
+            border: 2px solid #dee2e6;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #666;
+        }
+
+        .letter-tile:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+        }
+
+        .letter-tile.vowel-glow {
+            background: linear-gradient(45deg, #ff6b9d, #c44569);
+            color: white;
+            border-color: #ff6b9d;
+            box-shadow: 0 0 15px rgba(255, 107, 157, 0.6);
+            animation: glow-pulse 1.5s ease-in-out infinite;
+        }
+
+        .letter-tile.consonant-dim {
+            background: linear-gradient(45deg, #6c757d, #495057);
+            color: #adb5bd;
+            border-color: #6c757d;
+            opacity: 0.5;
+        }
+
+        @keyframes glow-pulse {
+            0%, 100% { box-shadow: 0 0 15px rgba(255, 107, 157, 0.6); }
+            50% { box-shadow: 0 0 25px rgba(255, 107, 157, 0.9); }
+        }
+
+        /* Confetti Animation */
+        .confetti-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: #ff6b9d;
+            animation: confetti-fall 3s ease-out forwards;
+        }
+
+        @keyframes confetti-fall {
+            0% {
+                transform: translateY(-100vh) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+
+        .completion-message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255, 255, 255, 0.95);
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            z-index: 1001;
+            animation: bounce-in 0.5s ease-out;
+        }
+
+        @keyframes bounce-in {
+            0% { transform: translate(-50%, -50%) scale(0.3); opacity: 0; }
+            50% { transform: translate(-50%, -50%) scale(1.1); }
+            100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+        }
+
+        .completion-message h2 {
+            color: #ff6b9d;
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .completion-message p {
+            font-size: 1.3em;
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .next-game-btn {
+            padding: 20px 40px;
+            background: linear-gradient(45deg, #4facfe, #00f2fe);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.5em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .next-game-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(79, 172, 254, 0.4);
+        }
+
+        .score-display {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            color: #ff6b9d;
+            font-weight: bold;
+        }
+
+        .reset-btn {
+            display: block;
+            margin: 20px auto;
+            padding: 15px 30px;
+            background: linear-gradient(45deg, #28a745, #20c997);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.2em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .reset-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.4);
+        }
+
+        .instructions {
+            background: rgba(255, 107, 157, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 1.1em;
+            color: #c44569;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Vowel Learning Games</h1>
+        </div>
+
+        <div class="game-selector">
+            <button class="game-btn active" onclick="switchGame('colorpicker')">Color Picker</button>
+            <button class="game-btn" onclick="switchGame('balloon')">Letter Catch</button>
+            <button class="game-btn" onclick="switchGame('fillblank')">Fill the Blank</button>
+        </div>
+
+        <div class="game-area">
+            <!-- Color Picker Game -->
+            <div id="colorpicker-game" class="game active">
+                <div class="instructions">
+                    Click letters to see magic! Vowels glow ✨
+                </div>
+                <div class="score-display">
+                    Vowels Found: <span id="colorpicker-score">0</span> / 5
+                </div>
+                <div class="alphabet-grid" id="alphabet-grid">
+                    <!-- Alphabet tiles will be generated here -->
+                </div>
+                <button class="reset-btn" onclick="resetColorPickerGame()">🔄 Reset</button>
+            </div>
+
+            <!-- Letter Catch Game -->
+            <div id="balloon-game" class="game">
+                <div class="instructions">
+                    Click only on the vowel balloons (A, E, I, O, U) as they float up! 🎈
+                </div>
+                <div class="score-display">
+                    Score: <span id="balloon-score">0</span>
+                </div>
+                <div class="balloon-container" id="balloon-container">
+                    <!-- Balloons will be spawned here -->
+                </div>
+                <button class="reset-btn" onclick="resetBalloonGame()">🔄 New Game</button>
+                <button class="next-game-btn" onclick="goToFillBlank()" style="margin-top: 10px;">
+                    Next Game
+                </button>
+            </div>
+
+            <!-- Fill the Blank Game -->
+            <div id="fillblank-game" class="game">
+                <div class="instructions">
+                    Drag the correct vowels to complete the words!
+                </div>
+                <div class="score-display">
+                    Words Completed: <span id="fillblank-score">0</span>
+                </div>
+                <div class="word-exercises" id="word-exercises">
+                    <!-- Word cards will be generated here -->
+                </div>
+                <button class="reset-btn" onclick="resetFillBlankGame()">🔄 New Words</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Audio context for sound effects
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        
+        // Sound generation functions
+        function playDing() {
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+            oscillator.frequency.exponentialRampToValueAtTime(1200, audioContext.currentTime + 0.1);
+            
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+            
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.3);
+        }
+
+        function playWrong() {
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.frequency.setValueAtTime(200, audioContext.currentTime);
+            oscillator.frequency.exponentialRampToValueAtTime(100, audioContext.currentTime + 0.3);
+            
+            gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+            
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.3);
+        }
+
+        // Game state
+        let currentGame = 'balloon';
+        let balloonScore = 0;
+        let fillBlankScore = 0;
+        let colorPickerScore = 0;
+        
+        const vowels = ['A', 'E', 'I', 'O', 'U'];
+        const consonants = ['B', 'C', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'V', 'W', 'X', 'Y', 'Z'];
+        
+        // Word data for fill-the-blank game
+        const wordData = [
+            
+            { word: 'CAT', blanks: [1], vowel: 'A' },
+            { word: 'DOG', blanks: [1], vowel: 'O' },
+            { word: 'SUN', blanks: [1], vowel: 'U' },
+            { word: 'HAT', blanks: [1], vowel: 'A' },
+            { word: 'FAN', blanks: [1], vowel: 'A' },
+            { word: 'LIP', blanks: [1], vowel: 'I' },
+            { word: 'PEN', blanks: [1], vowel: 'E' },
+            { word: 'BAT', blanks: [1], vowel: 'A' },
+            { word: 'HAPPY', blanks: [1], vowel: 'A' },
+            { word: 'CAKE', blanks: [1], vowel: 'A' },
+            { word: 'BALL', blanks: [1], vowel: 'A' },
+            { word: 'SONG', blanks: [1], vowel: 'O' },
+            { word: 'RED', blanks: [1], vowel: 'E' },
+            { word: 'NEST', blanks: [1], vowel: 'E' },
+            { word: 'TOY', blanks: [1], vowel: 'O' },
+            { word: 'FISH', blanks: [1], vowel: 'I' },
+            { word: 'TABLE', blanks: [1], vowel: 'A' },
+            { word: 'BOOK', blanks: [1], vowel: 'O' },
+            { word: 'GIRL', blanks: [1], vowel: 'I' },
+            { word: 'FLOWER', blanks: [2], vowel: 'O' },
+            { word: 'POTATO', blanks: [1], vowel: 'O' },
+            { word: 'FAMILY', blanks: [1], vowel: 'A' },
+            { word: 'SCHOOL', blanks: [3], vowel: 'O' },
+            { word: 'ELEPHANT', blanks: [2, 6], vowel: 'E' }
+        ];
+
+        // Game switching
+        function switchGame(gameType) {
+            // Update buttons
+            document.querySelectorAll('.game-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Update games
+            document.querySelectorAll('.game').forEach(game => game.classList.remove('active'));
+            document.getElementById(gameType + '-game').classList.add('active');
+            
+            currentGame = gameType;
+            
+            // Initialize the selected game
+            if (gameType === 'balloon') {
+                resetBalloonGame();
+            } else if (gameType === 'fillblank') {
+                resetFillBlankGame();
+            } else if (gameType === 'colorpicker') {
+                resetColorPickerGame();
+            }
+        }
+
+        // Letter Catch (Balloon) Game
+        function spawnBalloon() {
+            const container = document.getElementById('balloon-container');
+            const balloon = document.createElement('div');
+            balloon.className = 'balloon';
+            
+            // Random letter (mix of vowels and consonants)
+            const isVowel = Math.random() < 0.4;
+            const letter = isVowel ? vowels[Math.floor(Math.random() * vowels.length)] : consonants[Math.floor(Math.random() * consonants.length)];
+            
+            balloon.innerHTML = `
+                <div class="balloon-body" style="background: ${getBalloonColor()}">
+                    ${letter}
+                </div>
+                <div class="balloon-string"></div>
+            `;
+            
+            balloon.style.left = Math.random() * (container.offsetWidth - 60) + 'px';
+            balloon.dataset.letter = letter;
+            balloon.dataset.isVowel = isVowel;
+            
+            balloon.onclick = function() {
+                if (this.dataset.isVowel === 'true') {
+                    playDing();
+                    balloonScore++;
+                    document.getElementById('balloon-score').textContent = balloonScore;
+                } else {
+                    playWrong();
+                }
+                
+                this.classList.add('popped');
+                setTimeout(() => this.remove(), 300);
+            };
+            
+            container.appendChild(balloon);
+            
+            // Remove balloon after animation
+            setTimeout(() => {
+                if (balloon.parentNode) {
+                    balloon.remove();
+                }
+            }, 4000);
+        }
+
+        function getBalloonColor() {
+            const colors = [
+                'linear-gradient(45deg, #ff6b9d, #c44569)',
+                'linear-gradient(45deg, #4facfe, #00f2fe)',
+                'linear-gradient(45deg, #43e97b, #38f9d7)',
+                'linear-gradient(45deg, #fa709a, #fee140)',
+                'linear-gradient(45deg, #a8edea, #fed6e3)'
+            ];
+            return colors[Math.floor(Math.random() * colors.length)];
+        }
+
+        function resetBalloonGame() {
+            balloonScore = 0;
+            document.getElementById('balloon-score').textContent = balloonScore;
+            document.getElementById('balloon-container').innerHTML = '';
+            
+            // Start spawning balloons
+            setInterval(spawnBalloon, 1500);
+            spawnBalloon(); // Immediate first balloon
+        }
+
+        // Fill the Blank Game
+        function resetFillBlankGame() {
+            fillBlankScore = 0;
+            document.getElementById('fillblank-score').textContent = fillBlankScore;
+            
+            const container = document.getElementById('word-exercises');
+            container.innerHTML = '';
+            
+            // Generate 4 random words
+            const selectedWords = [...wordData].sort(() => Math.random() - 0.5).slice(0, 4);
+            
+            selectedWords.forEach((wordObj, index) => {
+                createWordCard(wordObj, index);
+            });
+        }
+
+        function createWordCard(wordObj, index) {
+            const container = document.getElementById('word-exercises');
+            const card = document.createElement('div');
+            card.className = 'word-card';
+            card.dataset.wordIndex = index;
+            
+            let wordDisplay = '';
+            for (let i = 0; i < wordObj.word.length; i++) {
+                if (wordObj.blanks.includes(i)) {
+                    wordDisplay += `<span class="blank-space" data-position="${i}"></span>`;
+                } else {
+                    wordDisplay += wordObj.word[i];
+                }
+            }
+            
+            card.innerHTML = `
+                <div class="word-display">${wordDisplay}</div>
+                <div class="vowel-options">
+                    ${vowels.map(vowel => `<button class="vowel-option" onclick="fillBlank('${vowel}', ${index})">${vowel}</button>`).join('')}
+                </div>
+            `;
+            
+            container.appendChild(card);
+        }
+
+        function fillBlank(vowel, wordIndex) {
+            const wordObj = wordData[wordIndex];
+            if (vowel !== wordObj.vowel) {
+                playWrong();
+                return;
+            }
+            
+            const card = document.querySelector(`[data-word-index="${wordIndex}"]`);
+            const blanks = card.querySelectorAll('.blank-space:not(.filled)');
+            
+            if (blanks.length > 0) {
+                const blank = blanks[0];
+                blank.textContent = vowel;
+                blank.classList.add('filled');
+                playDing();
+                
+                // Check if word is complete
+                if (card.querySelectorAll('.blank-space:not(.filled)').length === 0) {
+                    fillBlankScore++;
+                    document.getElementById('fillblank-score').textContent = fillBlankScore;
+                    
+                    // Disable vowel options for this card
+                    card.querySelectorAll('.vowel-option').forEach(btn => {
+                        btn.classList.add('used');
+                        btn.disabled = true;
+                    });
+                }
+            }
+        }
+
+        // Color Picker Game
+        function resetColorPickerGame() {
+            colorPickerScore = 0;
+            document.getElementById('colorpicker-score').textContent = colorPickerScore;
+            
+            // Remove any existing completion message
+            const existingMessage = document.querySelector('.completion-message');
+            if (existingMessage) existingMessage.remove();
+            
+            const container = document.getElementById('alphabet-grid');
+            container.innerHTML = '';
+            
+            // Create alphabet tiles
+            const alphabet = [...vowels, ...consonants].sort();
+            alphabet.forEach(letter => {
+                const tile = document.createElement('div');
+                tile.className = 'letter-tile';
+                tile.textContent = letter;
+                tile.dataset.letter = letter;
+                tile.dataset.isVowel = vowels.includes(letter);
+                
+                tile.onclick = function() {
+                    if (this.dataset.isVowel === 'true') {
+                        if (!this.classList.contains('vowel-glow')) {
+                            this.classList.add('vowel-glow');
+                            playDing();
+                            colorPickerScore++;
+                            document.getElementById('colorpicker-score').textContent = colorPickerScore;
+                            
+                            // Check if all vowels are found
+                            if (colorPickerScore === 5) {
+                                setTimeout(() => {
+                                    showCompletionMessage();
+                                }, 500);
+                            }
+                        }
+                    } else {
+                        this.classList.add('consonant-dim');
+                        playWrong();
+                        setTimeout(() => {
+                            this.classList.remove('consonant-dim');
+                        }, 1000);
+                    }
+                };
+                
+                container.appendChild(tile);
+            });
+        }
+
+        function showCompletionMessage() {
+            // Create confetti
+            createConfetti();
+            
+            // Create completion message
+            const message = document.createElement('div');
+            message.className = 'completion-message';
+            message.innerHTML = `
+                <h2>🎉 Amazing! 🎉</h2>
+                <p>You found all the vowels!</p>
+                <button class="next-game-btn" onclick="goToLetterCatch()">
+                    Next Game 🎈
+                </button>
+            `;
+            document.body.appendChild(message);
+        }
+
+        function createConfetti() {
+            const container = document.createElement('div');
+            container.className = 'confetti-container';
+            document.body.appendChild(container);
+            
+            const colors = ['#ff6b9d', '#4facfe', '#43e97b', '#fa709a', '#a8edea'];
+            
+            for (let i = 0; i < 50; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = Math.random() * 100 + '%';
+                confetti.style.animationDelay = Math.random() * 3 + 's';
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                container.appendChild(confetti);
+            }
+            
+            // Remove confetti after animation
+            setTimeout(() => {
+                container.remove();
+            }, 6000);
+        }
+
+        function goToLetterCatch() {
+            // Remove completion message
+            const message = document.querySelector('.completion-message');
+            if (message) message.remove();
+            
+            // Switch to Letter Catch game
+            switchGame('balloon');
+        }
+
+        function goToFillBlank() {
+            // Switch to Fill the Blank game
+            switchGame('fillblank');
+        }
+
+        // Initialize the first game
+        resetColorPickerGame();
+
+        // Enable audio context on first user interaction
+        document.addEventListener('click', function() {
+            if (audioContext.state === 'suspended') {
+                audioContext.resume();
+            }
+        }, { once: true });
+    </script>
+</body>
+</html>
